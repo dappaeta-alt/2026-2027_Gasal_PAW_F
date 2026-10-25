@@ -1,4 +1,4 @@
-<form name="myForm" action="prosesData_Form.php" method="POST">
+<form name="myForm" action="" method="POST">
     <div class="field">
         <label for="surname">Surname</label>
         <input type="text" name="surname" size="31" value="<?php echo isset($_POST['surname']) ? htmlspecialchars($_POST['surname']) : ''; ?>"/>
