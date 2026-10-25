@@ -1,8 +1,8 @@
 <?php
 require 'validate.inc'; 
-
 $errors = array();
 
+// 1. Cek apakah form sudah disubmit menggunakan POST
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     validateName($errors, $_POST, 'surname');
 }
@@ -11,14 +11,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Person Details Form</title>
 </head>
 <body>
     <fieldset>
         <legend>Person Details</legend>
         <?php
-        // Menampilkan pesan error jika validasi gagal
+        // 2. Tampilkan pesan error atau sukses jika form sudah dikirim
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             if ($errors) {
                 echo '<div style="color: red; margin-bottom: 15px;"><strong>Errors:</strong><br/>';
@@ -31,7 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             }
         }
 
-        // Menyisipkan file form.inc
+        // 3. Selalu sertakan form agar tampil di halaman
         include 'form.inc';
         ?>
     </fieldset>
