@@ -22,7 +22,7 @@ if (isset($_POST['update'])) {
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Edit Data Master Supplier</title>
+    <title>Edit Dataa Master Supplier</title>
     <style>
         body {
             font-family: Arial, sans-serif;
