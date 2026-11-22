@@ -35,6 +35,30 @@ if (isset($_POST['tambah_barang'])) {
     }
 }
 
+if (isset($_POST['edit_barang'])) {
+    $id_barang   = (int) $_POST['id_barang'];
+    $kode_barang = mysqli_real_escape_string($conn, $_POST['kode_barang']);
+    $nama_barang = mysqli_real_escape_string($conn, $_POST['nama_barang']);
+    $harga       = (int) $_POST['harga'];
+    $stok        = (int) $_POST['stok'];
+    $supplier_id = (int) $_POST['supplier_id'];
+
+    $query_update = "UPDATE barang SET kode_barang='$kode_barang', nama_barang='$nama_barang', harga='$harga', stok='$stok', supplier_id='$supplier_id' WHERE id='$id_barang'";
+
+    if (mysqli_query($conn, $query_update)) {
+        echo "<script>alert('Data barang berhasil diperbarui!'); window.location='master-barang.php';</script>";
+    } else {
+        echo "<script>alert('Gagal memperbarui barang: " . mysqli_error($conn) . "');</script>";
+    }
+}
+
+$edit_data = null;
+if (isset($_GET['edit'])) {
+    $id_edit = (int) $_GET['edit'];
+    $result_edit = mysqli_query($conn, "SELECT * FROM barang WHERE id='$id_edit'");
+    $edit_data = mysqli_fetch_assoc($result_edit);
+}
+
 $result_supplier = mysqli_query($conn, "SELECT * FROM supplier");
 
 $result_barang = mysqli_query($conn, "SELECT barang.*, supplier.nama AS nama_supplier FROM barang LEFT JOIN supplier ON barang.supplier_id = supplier.id");
@@ -137,29 +161,40 @@ $result_barang = mysqli_query($conn, "SELECT barang.*, supplier.nama AS nama_sup
 
         <!-- Form Tambah Barang -->
         <div class="box-form">
-            <h3 style="margin-top:0; color: midnightblue;">Tambah Barang Baru</h3>
+            <h3 style="margin-top:0; color: midnightblue;"><?php echo $edit_data ? 'Edit Data Barang' : 'Tambah Barang Baru'; ?></h3>
             <form method="POST">
+                <?php if ($edit_data): ?>
+                    <input type="hidden" name="id_barang" value="<?php echo (int) $edit_data['id']; ?>">
+                <?php endif; ?>
+
                 <label>Kode Barang:</label>
-                <input type="text" name="kode_barang" placeholder="Contoh: BRG01" required>
+                <input type="text" name="kode_barang" placeholder="Contoh: BRG01" value="<?php echo htmlspecialchars($edit_data['kode_barang'] ?? ''); ?>" required>
 
                 <label>Nama Barang:</label>
-                <input type="text" name="nama_barang" required>
+                <input type="text" name="nama_barang" value="<?php echo htmlspecialchars($edit_data['nama_barang'] ?? ''); ?>" required>
                 
                 <label>Harga (Rp):</label>
-                <input type="number" name="harga" required>
+                <input type="number" name="harga" value="<?php echo htmlspecialchars($edit_data['harga'] ?? ''); ?>" required>
                 
                 <label>Stok:</label>
-                <input type="number" name="stok" required>
+                <input type="number" name="stok" value="<?php echo htmlspecialchars($edit_data['stok'] ?? ''); ?>" required>
 
                 <label>Supplier:</label>
                 <select name="supplier_id" required>
                     <option value="">-- Pilih Supplier --</option>
                     <?php while ($sup = mysqli_fetch_assoc($result_supplier)): ?>
-                        <option value="<?php echo $sup['id']; ?>"><?php echo htmlspecialchars($sup['nama']); ?></option>
+                        <option value="<?php echo $sup['id']; ?>" <?php echo (($edit_data['supplier_id'] ?? '') == $sup['id']) ? 'selected' : ''; ?>>
+                            <?php echo htmlspecialchars($sup['nama']); ?>
+                        </option>
                     <?php endwhile; ?>
                 </select>
 
-                <button type="submit" name="tambah_barang">Simpan Barang</button>
+                <button type="submit" name="<?php echo $edit_data ? 'edit_barang' : 'tambah_barang'; ?>">
+                    <?php echo $edit_data ? 'Simpan Perubahan' : 'Simpan Barang'; ?>
+                </button>
+                <?php if ($edit_data): ?>
+                    <a href="master-barang.php" style="margin-left:10px;">Batal</a>
+                <?php endif; ?>
             </form>
         </div>
 
@@ -183,7 +218,8 @@ $result_barang = mysqli_query($conn, "SELECT barang.*, supplier.nama AS nama_sup
                 <td><?php echo $row['stok']; ?></td>
                 <td><?php echo htmlspecialchars($row['nama_supplier']); ?></td>
                 <td>
-                    <a href="master-barang.php?hapus=<?php echo $row['id']; ?>" onclick="return confirm('Yakin ingin menghapus barang ini?')">Hapus</a>
+                    <a href="master-barang.php?edit=<?php echo (int) $row['id']; ?>">Edit</a> |
+                    <a href="master-barang.php?hapus=<?php echo (int) $row['id']; ?>" onclick="return confirm('Yakin ingin menghapus barang ini?')">Hapus</a>
                 </td>
             </tr>
             <?php endwhile; ?>
