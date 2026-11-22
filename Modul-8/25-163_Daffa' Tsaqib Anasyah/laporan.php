@@ -31,6 +31,38 @@ if (!empty($_GET['mulai']) && !empty($_GET['selesai'])) {
         WHERE waktu_transaksi BETWEEN '$mulai' AND '$selesai'";
     $rp = mysqli_fetch_assoc(mysqli_query($conn, $qp));
     $total_pelanggan = $rp['jml'] ?? 0;
+
+    // Proses export Excel langsung dari file ini
+    if (isset($_GET['export']) && $_GET['export'] == 'excel') {
+        header("Content-type: application/vnd-ms-excel");
+        header("Content-Disposition: attachment; filename=Laporan_Penjualan.xls");
+        ?>
+        <h3>Laporan Penjualan (<?= $mulai; ?> s/d <?= $selesai; ?>)</h3>
+        <table border="1">
+            <tr>
+                <th>No</th>
+                <th>Total</th>
+                <th>Tanggal</th>
+            </tr>
+            <?php $no = 1; foreach ($rekap as $row): ?>
+                <tr>
+                    <td><?= $no++; ?></td>
+                    <td>Rp. <?= number_format($row['total_harian'], 0, ',', '.'); ?></td>
+                    <td><?= $row['tgl']; ?></td>
+                </tr>
+            <?php endforeach; ?>
+            <tr>
+                <td colspan="2"><b>Jumlah Pelanggan</b></td>
+                <td><b><?= $total_pelanggan; ?> Orang</b></td>
+            </tr>
+            <tr>
+                <td colspan="2"><b>Jumlah Pendapatan</b></td>
+                <td><b>Rp. <?= number_format($total_pendapatan, 0, ',', '.'); ?></b></td>
+            </tr>
+        </table>
+        <?php
+        exit;
+    }
 }
 ?>
 <!DOCTYPE html>
@@ -128,7 +160,7 @@ if (!empty($_GET['mulai']) && !empty($_GET['selesai'])) {
                 <button type="submit">Tampilkan</button>
             </form>
             <button onclick="window.print()">Cetak</button>
-            <a href="export_excel.php?mulai=<?= $_GET['mulai'] ?? '' ?>&selesai=<?= $_GET['selesai'] ?? '' ?>">
+            <a href="?mulai=<?= $_GET['mulai'] ?? '' ?>&selesai=<?= $_GET['selesai'] ?? '' ?>&export=excel">
                 <button type="button">Excel</button>
             </a>
         </div>
